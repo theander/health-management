@@ -1,0 +1,3 @@
+[submodule "health-management-dashboard-api"]
+	path = health-management-dashboard-api
+	url = https://github.com/theander/health-management-dashboard-api.git
