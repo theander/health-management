@@ -1,77 +1,146 @@
-version: '3.9'
 services:
   frontend:
     container_name: frontend
-    build: ./health-management-frontend
+    image: 'andercl/health-management-frontend:1.0.25'
+    # build: ./health-management-frontend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
-      - BASE_URL_USERS_API=http://users-api:8180
-      - BASE_URL_MEDICAL_API=http://medical-api:8280
-      - BASE_URL_LABS_API=http://labs-api:8380
+      - BASE_URL_USERS_API=http://172.24.0.1:8180
+      - BASE_URL_MEDICAL_API=http://172.24.0.1:8280
+      - BASE_URL_LABS_API=http://172.24.0.1:8380
     depends_on:
       - users-api
-      # - medical-api
+      - medical-api
+      - labs-api
+    deploy:
+        resources:
+            limits:
+              cpus: 0.15
+              memory: 128M
+            reservations:
+              cpus: 0.10
+              memory: 64M
+  medical-api:
+    container_name: medical-api
+    image: 'andercl/health-management-medical-api:1.0.17'
+    # build: ./health-management-medical-api
+    restart: always
+    ports:
+      - "8280:8280"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://172.24.0.1:5440/hm?currentSchema=medical
+      - DATABASE_USER=my_user
+      - DATABASE_PASSWORD=my_password
+      - ENVIRONMENT=production
+    depends_on:
+      - postgresql
+      - users-api
       - labs-api
     networks:
-      - frontend-svc-networks
+      - backend
+    deploy:
+        resources:
+            limits:
+              cpus: 0.15
+              memory: 256M
+            reservations:
+              cpus: 0.10
+              memory: 128M
   users-api:
     container_name: users-api
-    build: ./health-management-user-api
+    image: 'andercl/health-management-user-api:1.0.14'
+    # build: ./health-management-user-api
+    restart: always
     ports:
       - "8180:8180"
     environment:
-      - DATABASE_URL=jdbc:postgresql://database:5432/users
-      - DATABASE_USER=my_user
-      - DATABASE_PASSWORD=password123
       - ENVIRONMENT=production
+      - DATABASE_URL=jdbc:postgresql://172.24.0.1:5440/hm?currentSchema=users
+      - DATABASE_USER=my_user
+      - DATABASE_PASSWORD=my_password
     depends_on:
-      - database
+      - postgresql
+      - labs-api
     networks:
-      - services-api-networks
-      - frontend-svc-networks
-  # medical-api:
-  #   container_name: medical-api
-  #   build: ./health-management-medical-api
-  #   ports:
-  #     - "8280:8280"
-  #   environment:
-  #     - DATABASE_URL=jdbc:postgresql://database:5432/medical
-  #     - DATABASE_USER=my_user
-  #     - DATABASE_PASSWORD=password123
-  #     - ENVIRONMENT=production
-  #   depends_on:
-  #     - database
-  #   networks:
-  #     - services-api-networks
-  #     - frontend-svc-networks
+      - backend
+    deploy:
+        resources:
+            limits:
+              cpus: 0.15
+              memory: 256M
+            reservations:
+              cpus: 0.10
+              memory: 128M
+
   labs-api:
     container_name: labs-api
+    # image: 'andercl/health-management-labs-api:1.0.20'
     build: ./health-management-labs-api
+    restart: always
     ports:
       - "8380:8380"
     environment:
-      - DATABASE_URL=jdbc:postgresql://database:5432/labs
+      - DATABASE_URL=jdbc:postgresql://172.24.0.1:5440/hm?currentSchema=labs
       - DATABASE_USER=my_user
-      - DATABASE_PASSWORD=password123
+      - DATABASE_PASSWORD=my_password
       - ENVIRONMENT=production
     depends_on:
-      - database
+      - postgresql
     networks:
-      - services-api-networks
-      - frontend-svc-networks
-  database:
-    container_name: postgresql_db
-    image: bitnami/postgresql:15.2.0
+      - backend
+    deploy:
+        resources:
+            limits:
+              cpus: 0.15
+              memory: 256M
+            reservations:
+              cpus: 0.10
+              memory: 128M
+
+
+  postgresql:
+    container_name: postgresql
+    image: 'bitnami/postgresql:14.8.0'
     environment:
-      - POSTGRESQL_DATABASE=users
       - POSTGRESQL_USERNAME=my_user
-      - POSTGRESQL_PASSWORD=password123
+      - POSTGRESQL_PASSWORD=my_password
+      - POSTGRESQL_DATABASE=hm
     ports:
-      - "5432:5432"
+      - "5440:5432"
+    expose:
+      - 5440
     networks:
-      - services-api-networks
+      - backend
+    deploy:
+        resources:
+            limits:
+              cpus: 0.15
+              memory: 128M
+            reservations:
+              cpus: 0.10
+              memory: 64M
+
 networks:
-  services-api-networks:
-  frontend-svc-networks:
+  backend:
+    driver: bridge
     
+# First, define your user-defined bridge network:
+
+# docker network create your-network-name
+# Then, connect your containers to the network that you just created:
+
+# docker network connect your-network-name container-name
+# Then, you can inspect using the network interface that you create that container was successfully connected or not.
+
+# docker inspect network-name
+
+# The Overlay Driver
+# The Overlay driver is for multi-host network communication, as with Docker Swarm or Kubernetes. It allows containers across the host to communicate with each other without worrying about the setup. Think of an overlay network as a distributed virtualized network that’s built on top of an existing computer network.
+
+# To create an overlay network for Docker Swarm services, use the following command:
+
+# docker network create -d overlay my-overlay-network
+# To create an overlay network so that standalone containers can communicate with each other, use this command:
+
+# docker network create -d overlay --attachable my-attachable-overlay
