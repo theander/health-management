@@ -1,35 +1,37 @@
 services:
-  frontend:
-    container_name: frontend
-    image: 'andercl/health-management-frontend:1.0.25'
-    # build: ./health-management-frontend
-    ports:
-      - "3001:3000"
-    environment:
-      - BASE_URL_USERS_API=http://172.24.0.1:8180
-      - BASE_URL_MEDICAL_API=http://172.24.0.1:8280
-      - BASE_URL_LABS_API=http://172.24.0.1:8380
-    depends_on:
-      - users-api
-      - medical-api
-      - labs-api
-    deploy:
-        resources:
-            limits:
-              cpus: 0.15
-              memory: 128M
-            reservations:
-              cpus: 0.10
-              memory: 64M
+  # frontend:
+  #   container_name: frontend
+  #   #image: 'andercl/health-management-frontend:1.0.25'
+  #   build: ./health-management-frontend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NEXT_PUBLIC_BASE_URL_USERS_API=http://54.80.8.44:8180#http://172.20.0.1:8180
+  #     - NEXT_PUBLIC_BASE_URL_MEDICAL_API=http://54.80.8.44:8280#http://172.20.0.1:8280
+  #     - NEXT_PUBLIC_BASE_URL_LABS_API=http://54.80.8.44:8380#http://172.20.0.1:8380
+  #     - NEXT_PUBLIC_TESTE=123
+  #     - SECRET=secret
+  #   depends_on:
+  #     - users-api
+  #     - medical-api
+  #     - labs-api
+  #   deploy:
+  #       resources:
+  #           limits:
+  #             cpus: 0.15
+  #             memory: 128M
+  #           reservations:
+  #             cpus: 0.10
+  #             memory: 64M
   medical-api:
     container_name: medical-api
-    image: 'andercl/health-management-medical-api:1.0.17'
+    image: 'andercl/health-management-medical-api:1.0.20'
     # build: ./health-management-medical-api
     restart: always
     ports:
       - "8280:8280"
     environment:
-      - DATABASE_URL=jdbc:postgresql://172.24.0.1:5440/hm?currentSchema=medical
+      - DATABASE_URL=jdbc:postgresql://172.20.0.1:5440/hm?currentSchema=medical
       - DATABASE_USER=my_user
       - DATABASE_PASSWORD=my_password
       - ENVIRONMENT=production
@@ -49,14 +51,14 @@ services:
               memory: 128M
   users-api:
     container_name: users-api
-    image: 'andercl/health-management-user-api:1.0.14'
-    # build: ./health-management-user-api
+    image: 'andercl/health-management-user-api:1.0.24'
+    #build: ./health-management-user-api
     restart: always
     ports:
       - "8180:8180"
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=jdbc:postgresql://172.24.0.1:5440/hm?currentSchema=users
+      - DATABASE_URL=jdbc:postgresql://172.20.0.1:5440/hm?currentSchema=users
       - DATABASE_USER=my_user
       - DATABASE_PASSWORD=my_password
     depends_on:
@@ -75,13 +77,13 @@ services:
 
   labs-api:
     container_name: labs-api
-    # image: 'andercl/health-management-labs-api:1.0.20'
-    build: ./health-management-labs-api
+    image: 'andercl/health-management-labs-api:1.0.24'
+    #build: ./health-management-labs-api
     restart: always
     ports:
       - "8380:8380"
     environment:
-      - DATABASE_URL=jdbc:postgresql://172.24.0.1:5440/hm?currentSchema=labs
+      - DATABASE_URL=jdbc:postgresql://172.20.0.1:5440/hm?currentSchema=labs
       - DATABASE_USER=my_user
       - DATABASE_PASSWORD=my_password
       - ENVIRONMENT=production
@@ -110,6 +112,8 @@ services:
       - "5440:5432"
     expose:
       - 5440
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data 
     networks:
       - backend
     deploy:
@@ -124,6 +128,9 @@ services:
 networks:
   backend:
     driver: bridge
+
+volumes:
+  postgres_data:
     
 # First, define your user-defined bridge network:
 
