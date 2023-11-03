@@ -1,0 +1,49 @@
+@startuml name
+title Diagrama de cases de uso
+left to right direction
+
+actor User as u
+actor Medico as m
+actor Laboratório as l
+actor Admin as a
+
+
+package Funcionalidades {
+  usecase "Login" as F1
+  usecase "Logout" as F2
+  usecase "Criar usuário" as F3
+  usecase "Atualizar usuário" as F4
+  usecase "Deletar usuário" as F5
+  usecase "Marcar consulta" as F6
+  usecase "Ver consulta" as F7
+  usecase "Finalizar consulta" as F8
+  usecase "Ver exames em aberto" as F9
+  usecase "Ver exames em concluidos" as F10
+  usecase "Encerrar exames" as F11
+  usecase "Criar exames" as F12
+  
+}
+
+u --> F1
+u --> F2
+u --> F6
+u --> F7
+u --> F9
+m --> F1
+m --> F2
+m --> F7
+m --> F8
+m --> F9
+m --> F12
+l --> F1
+l --> F2
+l --> F9
+l --> F10
+l --> F11
+a --> F1
+a --> F2
+a --> F3
+a --> F4
+a --> F5
+
+@enduml

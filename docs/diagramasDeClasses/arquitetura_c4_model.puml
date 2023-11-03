@@ -1,0 +1,44 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/java.puml
+!include DEVICONS/nodejs.puml
+!include DEVICONS/javascript.puml
+!include DEVICONS/postgresql.puml
+!include FONTAWESOME/users.puml
+
+
+Person(user, "Usuários", "People that need products", $sprite="users")
+
+System_Boundary(c1, "Aplicação Nextjs", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
+Container(spa, "SPA", "Nextjs-FE", "Interface principal de interação com o usuário", $sprite="javascript")
+Container(nextApi, "API","Next-SS", "Api gateway para acesso aos microserviços", $sprite="nodejs")
+}
+Container(api, "User API", "java", "Gerencia toda lógica de negócios relacionado aos usuário", $sprite="java")
+Container(api1, "Medical API", "java", "Gerencia toda lógica de negócio relacionado aos médicos", $sprite="java")
+Container(api2, "Labs API", "java", "Gerencia toda lógica de negócio relacionado aos laboratórios", $sprite="java")
+Container(api3, "OAuth2", "Google Credentials", "Gerencia autenticação utilizando OAuth2 utilizando provedor google")
+
+
+
+ContainerDb(db, "Database", "Postgres", "Armazena informações de usuários e suas roles no domínio de usuários", $sprite="postgresql")
+ContainerDb(db1, "Database", "Postgres", "Armazena informações de realizadas no domínio dos laboratórios", $sprite="postgresql")
+ContainerDb(db2, "Database", "Postgres", "Armazena informações realizadas no dominio de médicos", $sprite="postgresql")
+
+Rel(user, spa, "Uses")
+Rel(spa, nextApi, "Uses")
+
+Rel(nextApi, api,"Reads/Writes")
+Rel(nextApi, api1,"Reads/Writes")
+Rel(nextApi, api2,"Reads/Writes")
+
+Rel_R(nextApi, api3,"Uses")
+Rel_R( api3,nextApi,"Uses")
+
+Rel(api, db, "Reads/Writes")
+Rel(api1, db1, "Reads/Writes")
+Rel(api2, db2, "Reads/Writes")
+
+@enduml

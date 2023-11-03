@@ -1,0 +1,61 @@
+@startuml
+title Diagrama de classes
+
+User o-- role : uses
+User o-- user_app : uses
+Consulta o-- user_app : uses
+Consulta o-- consulta : uses
+Medical o-- user_app : uses
+Medical o-- medical : uses
+Labs o-- user_app : uses
+Labs o-- lab : uses
+user_app_roles <|-- user_app
+user_app_roles <|-- role
+
+class role {
+   name: varchar(255)
+   id: bigint
+}
+
+class user_app {
+   name: varchar(255)
+   password: varchar(255)
+   username: varchar(255)
+   email: varchar(255)
+   registerdate: date
+   register_date: timestamp
+   id: bigint
+}
+
+class user_app_roles {
+   user_app_id: bigint
+   roles_id: bigint
+}
+
+class medical {
+   id: bigint   
+   evolution: varchar(255)
+   recipe: varchar(255)
+   register_date: timestamp
+   user_id: bigint
+}
+
+class consulta {
+   consulta_status_enum: integer
+   description: varchar(255)
+   medico: varchar(255)
+   register_date: timestamp
+   username: varchar(255)
+   id: bigint
+}
+
+class lab {
+   description: varchar(255)
+   name: varchar(255)
+   status: integer
+   username: varchar(255)
+   registerdate: date
+   register_date: timestamp
+   id: bigint
+}
+@enduml
